@@ -27,7 +27,7 @@ Astar.prototype = {
         {
             var x = this.getNextNode(openSet, fScore);
             if(x.id() == goal.id())
-                return this.reconstructPath(cameFrom, cameFrom[goal.id()]);
+                return this.reconstructPath(cameFrom, goal);
 
             delete openSet[x.id()];
             closedSet[x.id()] = x;

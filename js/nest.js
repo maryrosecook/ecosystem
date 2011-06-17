@@ -1,24 +1,23 @@
-function Colony() {}
+function Nest() {}
 
-Food.create = function(ecosystem) {
-    var food = new Food();
-    food.ecosystem = ecosystem;
-    food.type = "grass";
-    food.color = "#0a0";
+Nest.create = function(ecosystem, max) {
+    var nest = new Nest();
+    nest.ecosystem = ecosystem;
+    nest.color = "#000";
 
-    food.x = Math.floor(food.ecosystem.max.x * Math.random());
-    food.y = Math.floor(food.ecosystem.max.y * Math.random());
+    nest.pos = Coordinate.create(Math.floor(max.x / 2),
+                                  Math.floor(max.y / 2));
 
-    return food;
+    return nest;
 }
 
-Food.prototype = {
+Nest.prototype = {
     tick: function() {
         this.draw();
     },
 
     draw: function() {
         this.ecosystem.ctx.fillStyle = this.color;
-        this.ecosystem.ctx.fillRect(this.x, this.y, 2, 2);
+        this.ecosystem.ctx.fillRect(this.pos.x, this.pos.y, 3, 3);
     },
 }
