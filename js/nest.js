@@ -4,6 +4,7 @@ Nest.create = function(ecosystem, max) {
   var nest = new Nest();
   nest.ecosystem = ecosystem;
   nest.color = "#000";
+  nest.food = [];
 
   nest.pos = Coordinate.create(Math.floor(max.x / 2),
                                Math.floor(max.y / 2));
@@ -12,6 +13,10 @@ Nest.create = function(ecosystem, max) {
 }
 
 Nest.prototype = {
+  depositCargo: function(cargo) {
+    this.food.push(cargo);
+  },
+
   tick: function() {
     this.draw();
   },

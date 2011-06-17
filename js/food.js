@@ -4,7 +4,7 @@ Food.create = function(ecosystem) {
   var food = new Food();
   food.ecosystem = ecosystem;
   food.type = "grass";
-  food.color = "#0b0";
+  food.color = "#0a0";
   food.owner = null;
 
   food.pos = Coordinate.create();

@@ -12,7 +12,9 @@ Ant.create = function(ecosystem) {
   ant.pos = Coordinate.create();
   ant.pos.x = Math.floor(ant.ecosystem.max.x * Math.random());
   ant.pos.y = Math.floor(ant.ecosystem.max.y * Math.random());
-  ant.color = "#fff";
+
+  ant.normalColor = "#fff";
+  ant.color = ant.normalColor;
 
   return ant;
 }
@@ -20,6 +22,7 @@ Ant.create = function(ecosystem) {
 Ant.prototype = {
   tick: function() {
     this.state = this.state.tick();
+    //console.log(this.state.id)
     this.draw();
   },
 
@@ -36,27 +39,34 @@ Ant.prototype = {
   },
 
   canSalvage: function() {
-    return this.cargo == null
-      && this.ecosystem.getItemAt(this.pos) !== undefined;
+    return this.cargo === null
+      && this.ecosystem.getAnyItemAt(this.pos) !== undefined;
   },
 
   grab: function() {
-    var item = this.ecosystem.getItemAt(this.pos);
+    var item = this.ecosystem.pickUpAnyItemAt(this.pos);
     if(item instanceof Food)
     {
       console.log("foundfood")
-      this.cargo = this.ecosystem.pickUp(this);
+      this.cargo = item;
       this.color = this.cargo.color;
     }
   },
 
-  canStrikeForHome: function() {
-    return this.pos.id() != this.ecosystem.nest.pos.id();
+  canDepositCargo: function() { return this.cargo !== null },
+  depositCargo: function() {
+    this.ecosystem.nest.depositCargo(this.cargo);
+    this.cargo = null;
+    this.color = this.normalColor;
+  },
+
+  canGoHome: function() {
+    return this.cargo !== null;
   },
 
   canSetCourseForHome: function() {
-    return this.path.length == 0
-      || this.path[this.path.length - 1].id() != this.ecosystem.nest.pos.id();
+    return this.cargo !== null
+      && this.headingTo !== "home";
   },
   setCourseForHome: function() {
     this.setPath(this.getPathTo(this.ecosystem.nest.pos), "home");
@@ -68,9 +78,10 @@ Ant.prototype = {
                                  this.ecosystem.max);
   },
 
-  setPath: function(path, destination) {
+  headingTo: null,
+  setPath: function(path, headingTo) {
     this.path = path;
-    this.destination = destination;
+    this.headingTo = headingTo;
   },
 
   getRandomDestination: function() {
@@ -106,27 +117,27 @@ Ant.prototype = {
 
 // AI
 antai = {
-  identifier: "idle", strategy: "prioritised",
+  id: "idle", strategy: "prioritised",
   children: [
     {
-      identifier: "wander", strategy: "sequential",
+      id: "wander", strategy: "sequential",
       children: [
         {
-          identifier: "salvage", strategy: "sequential",
+          id: "salvage", strategy: "sequential",
           children: [
-            { identifier: "grab" },
+            { id: "grab" },
             {
-              identifier: "strikeForHome", strategy: "prioritised",
+              id: "goHome", strategy: "prioritised",
               children: [
-                { identifier: "setCourseForHome" },
-                { identifier: "walk" },
-
+                { id: "setCourseForHome" },
+                { id: "walk" },
+                { id: "depositCargo" },
               ]
             },
           ]
         },
-        { identifier: "setWanderDestination" },
-        { identifier: "walk" },
+        { id: "setWanderDestination" },
+        { id: "walk" },
       ]
     },
   ]

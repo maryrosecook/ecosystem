@@ -18,10 +18,10 @@ Ecosystem.create = function(canvas) {
   // things in the ecosystem
   e.ants = [];
   e.food = [];
-  e.nest = Nest.create(ecosystem, e.max);
+  e.nest = Nest.create(e, e.max);
 
   e.addAnts(20);
-  e.addFood(200);
+  e.addFood(300);
 
   return e;
 }
@@ -38,25 +38,42 @@ Ecosystem.prototype = {
     this.draw()
     _.map(this.ants, function(ant) { ant.tick() });
     _.map(this.food, function(food) { food.tick() });
+    this.nest.tick();
   },
 
   pickUp: function(pickerUpper) {
-    var item = this.getItemAt(pickerUpper.pos);
-    if(item !== undefined)
+    var item = this.pickUpItemAtCoordinate(this.food, pickerUpper.pos);
+    if(item !== null)
     {
       item.owner = pickerUpper;
       return item;
     }
   },
 
-  getItemAt: function(pos) {
-    return this.findItemAtCoordinate(this.food, pos);
+  getAnyItemAt: function(pos) {
+    return this.getItemAt(this.food, pos);
   },
 
-  findItemAtCoordinate: function(items, pos) {
+  getItemAt: function(items, pos) {
     for(var i in items)
       if(pos.id() == items[i].pos.id())
         return items[i];
+  },
+
+  pickUpAnyItemAt: function(pos) {
+    return this.pickUpItemAt(this.food, pos);
+  },
+
+  pickUpItemAt: function(items, pos) {
+    var item = null;
+    for(var i in items)
+      if(pos.id() == items[i].pos.id())
+      {
+        item = items[i];
+        delete items[i];
+      }
+
+    return item;
   },
 
   draw: function() {
