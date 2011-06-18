@@ -7,7 +7,7 @@ Ecosystem.create = function(canvas) {
   var numFoodPerHub = 100;
   var maxFoodTravel = 50; // from hub
 
-  e.frameInterval = 10;
+  e.frameInterval = 1;
 
   // drawing setup
   e.canvas = canvas;

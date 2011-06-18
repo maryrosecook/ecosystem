@@ -17,6 +17,10 @@ Nest.prototype = {
     this.food.push(cargo);
   },
 
+  atNest: function(object) {
+    return object.pos.id() === this.pos.id();
+  },
+
   tick: function() {
     this.draw();
   },

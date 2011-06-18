@@ -37,4 +37,21 @@ Geometry.prototype = {
     var max = Math.min(randomMaxTravel, Math.abs(position - boundary));
     return Math.floor(Math.random() * max);
   },
+
+  coordinateAwayFromNest: function(currentCoordinate) {
+    var c = Coordinate.create(this.ordinateAwayFromNest(currentCoordinate.x,
+                                                        this.ecosystem.nest.pos.x),
+                              this.ordinateAwayFromNest(currentCoordinate.y,
+                                                        this.ecosystem.nest.pos.y));
+    return c;
+  },
+
+  ordinateAwayFromNest: function(objectOrdinate, nestOrdinate) {
+    if(nestOrdinate < objectOrdinate)
+      return objectOrdinate + 1;
+    else if(nestOrdinate > objectOrdinate)
+      return objectOrdinate - 1;
+    else
+      return objectOrdinate;
+  },
 }

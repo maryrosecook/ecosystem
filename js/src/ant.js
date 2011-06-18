@@ -24,8 +24,8 @@ Ant.prototype = {
     this.draw();
   },
 
-  canSetWanderDestination: function() { return this.path.length == 0; },
   maxWander: 50,
+  canSetWanderDestination: function() { return this.path.length == 0; },
   setWanderDestination: function() {
     this.setCourse(this.ecosystem.geometry.getRandomNewDestination(this.pos,
                                                                    this.maxWander),
@@ -42,6 +42,17 @@ Ant.prototype = {
   canSalvage: function() {
     return this.cargo === null
       && this.ecosystem.getItemAt(this.pos, "food") !== undefined;
+  },
+
+  canFollowPheromone: function() {
+    return this.ecosystem.getItemAt(this.pos, "pheromones") !== undefined
+      && !this.ecosystem.nest.atNest(this);
+  },
+  followPheromone: function() {
+    //console.log("setting pheromone course")
+    this.deleteCourse(null); // delete any existing course
+    var c = this.ecosystem.geometry.coordinateAwayFromNest(this.pos);
+    this.pos = Coordinate.create(c.x, c.y, true);
   },
 
   grab: function() {
@@ -91,6 +102,11 @@ Ant.prototype = {
     this.headingTo = headingTo;
   },
 
+  deleteCourse: function() {
+    this.path = [];
+    this.headingTo = null;
+  },
+
   draw: function() {
     this.ecosystem.ctx.fillStyle = this.color;
     this.ecosystem.ctx.fillRect(this.pos.x, this.pos.y, 2, 2);
@@ -102,7 +118,7 @@ antai = {
   id: "idle", strategy: "prioritised",
   children: [
     {
-      id: "wander", strategy: "sequential",
+      id: "scavenge", strategy: "sequential",
       children: [
         {
           id: "salvage", strategy: "sequential",
@@ -124,6 +140,7 @@ antai = {
             },
           ]
         },
+        { id: "followPheromone" },
         { id: "setWanderDestination" },
         { id: "walk" },
       ]
