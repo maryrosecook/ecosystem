@@ -60,10 +60,7 @@ Ecosystem.prototype = {
     {
       var innerCollection = collection[i];
       for(var j in innerCollection)
-      {
-        var item = innerCollection[j];
-        item[funcName].call(item);
-      }
+        innerCollection[j][funcName].call(innerCollection[j]);
     }
   },
 
