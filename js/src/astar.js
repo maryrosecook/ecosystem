@@ -17,15 +17,17 @@ Astar.prototype = {
 
     // lower scores are better
     var gScore = {};
-    var fScore = {};
+    var fScore = new BinaryHeap(function(x) {
+                                  return x.fScore;
+                                });
 
     openSet[start.id()] = start; // the set of tentative nodes to be evaluated.
     gScore[start.id()] = 0; // cost from start along best known path.
-    fScore[start.id()] = gScore[start.id()] + this.heuristicCostEstimate(start, goal);
+    this.setFScore(start, goal, gScore, fScore);
 
-    while(_.keys(openSet).length > 0)
+    while(true) // hack - should terminate if no open nodes, but prob won't ever happen
     {
-      var x = this.getNextNode(openSet, fScore);
+      var x = this.getNextNode(fScore);
       if(x.id() == goal.id())
         return this.reconstructPath(cameFrom, goal);
 
@@ -55,7 +57,7 @@ Astar.prototype = {
         {
           cameFrom[y.id()] = x;
           gScore[y.id()] = tentativeGScore;
-          fScore[y.id()] = gScore[y.id()] + this.heuristicCostEstimate(y, goal);
+          this.setFScore(y, goal, gScore, fScore)
         }
       }
     }
@@ -63,19 +65,13 @@ Astar.prototype = {
     return null;
   },
 
-  getNextNode: function(openSet, fScore) {
-    var lowestScore = 99999999999999999;
-    var lowestScoringNode = null;
-    for(var i in openSet)
-    {
-      if(fScore[i] < lowestScore)
-      {
-        lowestScore = fScore[i];
-        lowestScoringNode = openSet[i];
-      }
-    }
+  setFScore: function(node, goal, gScore, fScore) {
+    node.fScore = gScore[node.id()] + this.heuristicCostEstimate(node, goal);
+    fScore.push(node);
+  },
 
-    return lowestScoringNode;
+  getNextNode: function(fScore) {
+    return fScore.pop();
   },
 
   distance: function(a, b) {

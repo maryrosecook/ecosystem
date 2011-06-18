@@ -9,9 +9,9 @@ Ant.create = function(ecosystem) {
   ant.pathFinder = Astar.create();
   ant.path = [];
 
-  ant.pos = Coordinate.create();
-  ant.pos.x = Math.floor(ant.ecosystem.max.x * Math.random());
-  ant.pos.y = Math.floor(ant.ecosystem.max.y * Math.random());
+  ant.pos = Coordinate.create(Math.floor(ant.ecosystem.max.x * Math.random()),
+                              Math.floor(ant.ecosystem.max.y * Math.random()),
+                              true);
 
   ant.normalColor = "#fff";
   ant.color = ant.normalColor;
@@ -40,16 +40,16 @@ Ant.prototype = {
 
   canSalvage: function() {
     return this.cargo === null
-      && this.ecosystem.getAnyItemAt(this.pos) !== undefined;
+      && this.ecosystem.getItemAt(this.pos) !== undefined;
   },
 
   grab: function() {
-    var item = this.ecosystem.pickUpAnyItemAt(this.pos);
+    var item = this.ecosystem.pickUpItemAt(this.pos);
     if(item instanceof Food)
     {
       console.log("foundfood")
       this.cargo = item;
-      this.color = this.cargo.color;
+      this.color = this.cargo.cargoColor;
     }
   },
 

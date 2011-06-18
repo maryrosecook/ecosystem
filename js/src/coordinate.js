@@ -1,13 +1,28 @@
 function Coordinate() {}
-Coordinate.create = function(x, y) {
+Coordinate.create = function(x, y, dynamic) {
   var coordinate = new Coordinate();
   coordinate.x = x;
   coordinate.y = y;
 
+  // a bit mental
+  if(dynamic === true)
+    coordinate.id = function() {
+      return coordinate.generateId();
+    };
+  else
+  {
+    coordinate._id = coordinate.generateId();
+    coordinate.id = function() {
+      return coordinate._id;
+    };
+  }
+
   return coordinate;
 }
 Coordinate.prototype = {
-  id: function() { return this.x + "," + this.y},
+  generateId: function() {
+    return this.x + "," + this.y
+  },
 
   neighbours: function(maxCoordinates) {
     var neighbours = [];
