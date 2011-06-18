@@ -1,6 +1,6 @@
 function Food() {}
 
-Food.create = function(ecosystem) {
+Food.create = function(ecosystem, hubCoordinate, maxTravel) {
   var food = new Food();
   food.ecosystem = ecosystem;
   food.owner = null;
@@ -8,8 +8,7 @@ Food.create = function(ecosystem) {
   food.groundColor = "#0a0";
   food.cargoColor = "#0f0";
 
-  food.pos = Coordinate.create(Math.floor(food.ecosystem.max.x * Math.random()),
-                               Math.floor(food.ecosystem.max.y * Math.random()));
+  food.pos = food.ecosystem.geometry.getRandomNewDestination(hubCoordinate, maxTravel);
 
   return food;
 }

@@ -9,9 +9,7 @@ Ant.create = function(ecosystem) {
   ant.pathFinder = Astar.create();
   ant.path = [];
 
-  ant.pos = Coordinate.create(Math.floor(ant.ecosystem.max.x * Math.random()),
-                              Math.floor(ant.ecosystem.max.y * Math.random()),
-                              true);
+  ant.pos = ant.ecosystem.geometry.getRandomCoordinate(true);
 
   ant.normalColor = "#fff";
   ant.color = ant.normalColor;
@@ -27,8 +25,11 @@ Ant.prototype = {
   },
 
   canSetWanderDestination: function() { return this.path.length == 0; },
+  maxWander: 50,
   setWanderDestination: function() {
-    this.setPath(this.getRandomDestination(), "wander");
+    this.setCourse(this.ecosystem.geometry.getRandomNewDestination(this.pos,
+                                                                   this.maxWander),
+                   "wander");
   },
 
   canWalk: function() { return this.path.length > 0; },
@@ -40,17 +41,21 @@ Ant.prototype = {
 
   canSalvage: function() {
     return this.cargo === null
-      && this.ecosystem.getItemAt(this.pos) !== undefined;
+      && this.ecosystem.getItemAt(this.pos, "food") !== undefined;
   },
 
   grab: function() {
-    var item = this.ecosystem.pickUpItemAt(this.pos);
+    var item = this.ecosystem.pickUpItemAt(this.pos, "food");
     if(item instanceof Food)
     {
       console.log("foundfood")
       this.cargo = item;
       this.color = this.cargo.cargoColor;
     }
+  },
+
+  pheromone: function() {
+    this.ecosystem.pheromone(this.pos);
   },
 
   canDepositCargo: function() { return this.cargo !== null },
@@ -69,7 +74,7 @@ Ant.prototype = {
       && this.headingTo !== "home";
   },
   setCourseForHome: function() {
-    this.setPath(this.getPathTo(this.ecosystem.nest.pos), "home");
+    this.setCourse(this.ecosystem.nest.pos, "home");
   },
 
   getPathTo: function(coordinate) {
@@ -78,35 +83,12 @@ Ant.prototype = {
                                  this.ecosystem.max);
   },
 
+  canWalkHome: function() { return this.path.length > 0; },
+
   headingTo: null,
-  setPath: function(path, headingTo) {
-    this.path = path;
+  setCourse: function(coordinate, headingTo) {
+    this.path = this.getPathTo(coordinate);
     this.headingTo = headingTo;
-  },
-
-  getRandomDestination: function() {
-    var goal = Coordinate.create(this.pos.x + this.randomOrdinate(this.pos.x,
-                                                                  this.ecosystem.min.x,
-                                                                  this.ecosystem.max.x),
-                                 this.pos.y + this.randomOrdinate(this.pos.y,
-                                                                  this.ecosystem.min.y,
-                                                                  this.ecosystem.max.y));
-
-    return this.getPathTo(goal);
-  },
-
-  randomOrdinate: function(current, min, max) {
-    var theoreticalMaxTravel = Math.floor(50 * Math.random());
-    if(Math.random() < 0.5)
-      return -this.randTravel(theoreticalMaxTravel, current, min);
-    else
-      return this.randTravel(theoreticalMaxTravel, current, max);
-  },
-
-  // returns theoreticalMaxTravel, or boundary if closer
-  randTravel: function(theoreticalMaxTravel, position, boundary) {
-    var max = Math.min(theoreticalMaxTravel, Math.abs(position - boundary));
-    return Math.floor(Math.random() * max);
   },
 
   draw: function() {
@@ -130,7 +112,13 @@ antai = {
               id: "goHome", strategy: "prioritised",
               children: [
                 { id: "setCourseForHome" },
-                { id: "walk" },
+                {
+                  id: "walkHome", strategy: "sequential",
+                  children: [
+                    { id: "walk" },
+                    { id: "pheromone" },
+                  ]
+                },
                 { id: "depositCargo" },
               ]
             },
