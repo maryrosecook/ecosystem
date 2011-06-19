@@ -30,7 +30,7 @@ Ecosystem.create = function(canvas) {
 
   e.creatures.ants = [];
   e.items.pheromones = {};
-  e.items.food = [];
+  e.items.food = {};
 
   e.nest = Nest.create(e, e.max);
 
@@ -73,20 +73,17 @@ Ecosystem.prototype = {
   },
 
   getItemAt: function(pos, type) {
-    for(var i in this.items[type])
-      if(pos.id() === this.items[type][i].pos.id())
-        return this.items[type][i];
+    if(this.items[type][pos.id()] !== undefined)
+      return this.items[type][pos.id()]
   },
 
   pickUpItemAt: function(pos, type) {
-    var item = null;
-    for(var i in this.items[type])
-      if(pos.id() == this.items[type][i].pos.id())
-      {
-        item = this.items[type][i];
-        delete this.items[type][i];
-        item.pickUp();
-      }
+    var item = this.items[type][pos.id()];
+    if(item !== undefined)
+    {
+      delete this.items[type][pos.id()];
+      item.pickUp();
+    }
 
     return item;
   },
@@ -108,7 +105,10 @@ Ecosystem.prototype = {
     {
       var randomFoodHub = this.geometry.getRandomCoordinate();
       for(var j = 0; j < foodPerHubCount; j++)
-        this.items.food.push(Food.create(this, randomFoodHub, maxFoodTravel));
+      {
+        var food = Food.create(this, randomFoodHub, maxFoodTravel);
+        this.items.food[food.pos.id()] = food;
+      }
     }
   },
 }
