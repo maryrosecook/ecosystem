@@ -118,7 +118,7 @@ antai = {
   id: "idle", strategy: "prioritised",
   children: [
     {
-      id: "scavenge", strategy: "sequential",
+      id: "scavenge", strategy: "prioritised",
       children: [
         {
           id: "salvage", strategy: "sequential",
